@@ -119,7 +119,7 @@ This project is licensed under the MIT License - see LICENSE file for details.
 
 ## 👤 Author
 
-**Abhishek** - [[Your GitHub Profile](https://github.com/yourusername)](https://github.com/avishekrwt)
+**Abhishek** - [(https://github.com/avishekrwt)]
 
 ## ❓ Questions & Support
 
