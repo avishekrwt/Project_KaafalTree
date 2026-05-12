@@ -53,9 +53,26 @@ export default function ManageGallery() {
           <label className="admin-field"><span>Alt text</span><input value={form.altText} onChange={(e) => setForm({ ...form, altText: e.target.value })} required /></label>
           <label className="admin-field"><span>Category</span><select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}><option>Property</option><option>Rooms</option><option>Restaurant</option><option>Surroundings</option></select></label>
           <label className="admin-field"><span>Display order</span><input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: e.target.value })} /></label>
-          <label className="admin-field"><span>Image URL</span><input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} /></label>
+          <div className="admin-field">
+            <span>Image URL <span style={{ fontWeight: 400, color: 'var(--admin-text-muted)' }}>(paste any public image URL from internet)</span></span>
+            <input
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              value={form.imageUrl}
+              onChange={(e) => setForm({ ...form, imageUrl: e.target.value, image: null })}
+            />
+            {form.imageUrl && (
+              <img
+                src={form.imageUrl}
+                alt="URL Preview"
+                onError={e => { e.target.style.display = 'none'; }}
+                onLoad={e => { e.target.style.display = 'block'; }}
+                style={{ display: 'none', marginTop: '10px', borderRadius: '8px', maxHeight: '120px', objectFit: 'cover', width: '100%', border: '1px solid var(--admin-border)' }}
+              />
+            )}
+          </div>
         </div>
-        <ImageUpload label="Upload image" name="image" onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })} />
+        <ImageUpload label="Or upload from device" name="image" onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null, imageUrl: '' })} />
         <button type="submit" className="btn btn-primary">Add Image</button>
       </form>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, User, LayoutDashboard, CalendarDays, Bed, Utensils, Image as ImageIcon, MessageSquare, Star } from 'lucide-react';
+import { Menu, X, LogOut, User, LayoutDashboard, CalendarDays, Bed, Utensils, Image as ImageIcon, MessageSquare, Star, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './AdminLayout.css';
 import '../LoadingSpinner.css';
@@ -13,6 +13,7 @@ const links = [
   { to: '/admin/gallery', label: 'Gallery', icon: <ImageIcon size={20} /> },
   { to: '/admin/testimonials', label: 'Testimonials', icon: <Star size={20} /> },
   { to: '/admin/messages', label: 'Messages', icon: <MessageSquare size={20} /> },
+  { to: '/admin/booking-records', label: 'Booking Records', icon: <ClipboardList size={20} /> },
 ];
 
 export default function AdminLayout() {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mountain, Utensils, Car, Wifi, ShowerHead, TreePine,
-  Star, ArrowRight, MapPin, Phone, ChevronRight
+  Star, ArrowRight, MapPin, Phone, ChevronRight, ExternalLink
 } from 'lucide-react';
 import { publicApi, getImageUrl } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -225,7 +225,22 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p>&ldquo;{t.reviewText}&rdquo;</p>
-                <h4>{t.guestName}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                  <h4>{t.guestName}</h4>
+                  {t.link && (
+                    <a
+                      href={t.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="View original review"
+                      style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--gold)', opacity: 0.75, transition: 'opacity 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                      onMouseLeave={e => e.currentTarget.style.opacity = 0.75}
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>

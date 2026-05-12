@@ -10,6 +10,7 @@ export const adminApi = {
     const query = new URLSearchParams(params).toString();
     return request(`/admin/bookings${query ? `?${query}` : ''}`);
   },
+  createBooking: (payload) => request('/admin/bookings', { method: 'POST', body: JSON.stringify(payload) }),
   updateBooking: (id, payload) => request(`/admin/bookings/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
   deleteBooking: (id) => request(`/admin/bookings/${id}`, { method: 'DELETE' }),
 

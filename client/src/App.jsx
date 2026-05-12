@@ -19,6 +19,7 @@ import ManageMenu from './pages/admin/ManageMenu';
 import ManageGallery from './pages/admin/ManageGallery';
 import ManageTestimonials from './pages/admin/ManageTestimonials';
 import ManageMessages from './pages/admin/ManageMessages';
+import BookingRecords from './pages/admin/BookingRecords';
 import './styles/index.css';
 
 function AppContent() {
@@ -53,6 +54,7 @@ function AppContent() {
             <Route path="gallery" element={<ManageGallery />} />
             <Route path="testimonials" element={<ManageTestimonials />} />
             <Route path="messages" element={<ManageMessages />} />
+            <Route path="booking-records" element={<BookingRecords />} />
           </Route>
         </Routes>
       </div>
