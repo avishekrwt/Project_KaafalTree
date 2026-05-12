@@ -10,12 +10,10 @@ const Admin = sequelize.define('Admin', {
   username: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    unique: true,
   },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    unique: true,
   },
   password_hash: {
     type: DataTypes.CHAR(60),
@@ -39,6 +37,18 @@ const Admin = sequelize.define('Admin', {
       attributes: {},
     },
   },
+  indexes: [
+    {
+      unique: true,
+      name: 'idx_admins_username',
+      fields: ['username'],
+    },
+    {
+      unique: true,
+      name: 'idx_admins_email',
+      fields: ['email'],
+    },
+  ],
 });
 
 module.exports = Admin;

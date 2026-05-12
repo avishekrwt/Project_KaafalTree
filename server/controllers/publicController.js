@@ -1,5 +1,6 @@
 const asyncHandler = require('../utils/asyncHandler');
-const { GalleryImage, MenuCategory, MenuItem, Room, Testimonial } = require('../models');
+const { Op } = require('sequelize');
+const { GalleryImage, MenuCategory, MenuItem, Room, Testimonial, Booking } = require('../models');
 const {
   gallerySerializer,
   menuCategorySerializer,
@@ -88,7 +89,41 @@ const getCapabilities = asyncHandler(async (req, res) => {
   });
 });
 
+const checkAvailability = asyncHandler(async (req, res) => {
+  const { checkIn, checkOut } = req.query;
+  if (!checkIn || !checkOut) {
+    return res.status(400).json({ error: 'checkIn and checkOut dates are required' });
+  }
+
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
+  
+  if (isNaN(checkInDate) || isNaN(checkOutDate)) {
+    return res.status(400).json({ error: 'Invalid dates' });
+  }
+
+  // Find all rooms
+  const rooms = await Room.findAll({ where: { is_available: true } });
+  
+  // Calculate total units
+  const totalUnits = rooms.reduce((sum, room) => sum + (room.total_units || 1), 0);
+
+  // Find overlapping bookings
+  const overlappingBookings = await Booking.count({
+    where: {
+      status: { [Op.in]: ['pending', 'confirmed', 'paid'] },
+      checkin_date: { [Op.lt]: checkOutDate },
+      checkout_date: { [Op.gt]: checkInDate },
+    }
+  });
+
+  const available = totalUnits > overlappingBookings;
+  
+  res.json({ data: { available, availableUnits: totalUnits - overlappingBookings } });
+});
+
 module.exports = {
+  checkAvailability,
   getCapabilities,
   getGallery,
   getMenu,

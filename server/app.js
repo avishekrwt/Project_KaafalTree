@@ -94,18 +94,38 @@ app.use((req, res) => {
 // Start server
 async function startServer() {
   try {
+    console.log('Starting server initialization...');
+    
+    // 1. Validate environment variables
+    const requiredEnvs = ['DB_NAME', 'DB_USER', 'JWT_SECRET'];
+    const missingEnvs = requiredEnvs.filter(env => process.env[env] === undefined || process.env[env] === '');
+    if (missingEnvs.length > 0) {
+      throw new Error(`Missing required environment variables: ${missingEnvs.join(', ')}`);
+    }
+    
+    if (process.env.DB_PASS === undefined) {
+      console.warn('WARNING: DB_PASS is not set. Assuming empty password.');
+    }
+
+    // 2. Validate DB connection
     await sequelize.authenticate();
     console.log('Database connected successfully.');
 
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    console.log('Database synced.');
+    // 3. Sync database safely (dev only)
+    if (process.env.NODE_ENV === "development") {
+      await sequelize.sync();
+      console.log('Database synced.');
+    }
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`API: http://localhost:${PORT}/api/health`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('CRITICAL STARTUP FAILURE:', error.message);
+    if (error.original) {
+      console.error('Database Error Details:', error.original);
+    }
     process.exit(1);
   }
 }

@@ -4,7 +4,7 @@ export default function AdminTable({ columns, rows, emptyMessage = 'No data foun
   }
 
   return (
-    <div className="admin-card admin-table-wrap">
+    <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>

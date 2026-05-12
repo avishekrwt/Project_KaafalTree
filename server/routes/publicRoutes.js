@@ -9,5 +9,6 @@ router.get('/rooms/:id', publicController.getRoomById);
 router.get('/menu', publicController.getMenu);
 router.get('/gallery', publicController.getGallery);
 router.get('/testimonials', publicController.getTestimonials);
+router.get('/availability', publicController.checkAvailability);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Navigation, Mountain } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { publicApi } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
@@ -11,8 +13,8 @@ const initialBookingForm = {
   guestPhone: '',
   roomId: '',
   numGuests: 2,
-  checkIn: '',
-  checkOut: '',
+  checkIn: null,
+  checkOut: null,
   specialRequests: '',
 };
 
@@ -34,6 +36,8 @@ export default function ContactPage() {
   const [contactErrors, setContactErrors] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState('');
+  const [availability, setAvailability] = useState(null);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   useEffect(() => {
     Promise.all([publicApi.getRooms(), publicApi.getCapabilities()])
@@ -47,6 +51,43 @@ export default function ContactPage() {
         setLoading(false);
       });
   }, []);
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split('T')[0];
+  };
+
+  useEffect(() => {
+    if (bookingForm.checkIn && bookingForm.checkOut) {
+      setCheckingAvailability(true);
+      setAvailability(null);
+      publicApi.checkAvailability(formatDate(bookingForm.checkIn), formatDate(bookingForm.checkOut))
+        .then(res => {
+          setAvailability(res.data.available);
+        })
+        .catch(err => {
+          console.error('Failed to check availability', err);
+        })
+        .finally(() => {
+          setCheckingAvailability(false);
+        });
+    } else {
+      setAvailability(null);
+      setCheckingAvailability(false);
+    }
+  }, [bookingForm.checkIn, bookingForm.checkOut]);
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\+91[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleRazorpay = async ({ booking, payment }) => {
     if (!window.Razorpay || !payment) {
@@ -94,9 +135,27 @@ export default function ContactPage() {
     setBookingErrors([]);
     setSuccessMessage('');
 
+    if (!validateEmail(bookingForm.guestEmail)) {
+      setBookingErrors([{ message: 'Please enter a valid email address.' }]);
+      setSubmitting('');
+      return;
+    }
+    if (!validatePhone(bookingForm.guestPhone)) {
+      setBookingErrors([{ message: 'Phone number must be valid (+91 followed by 10 digits).' }]);
+      setSubmitting('');
+      return;
+    }
+    if (!bookingForm.checkIn || !bookingForm.checkOut) {
+      setBookingErrors([{ message: 'Please select check-in and check-out dates.' }]);
+      setSubmitting('');
+      return;
+    }
+
     try {
       const response = await publicApi.createBooking({
         ...bookingForm,
+        checkIn: formatDate(bookingForm.checkIn),
+        checkOut: formatDate(bookingForm.checkOut),
         roomId: bookingForm.roomId || null,
         numGuests: Number(bookingForm.numGuests),
         mode,
@@ -124,6 +183,17 @@ export default function ContactPage() {
     setSubmitting('contact');
     setContactErrors([]);
     setSuccessMessage('');
+
+    if (!validateEmail(contactForm.email)) {
+      setContactErrors([{ message: 'Please enter a valid email address.' }]);
+      setSubmitting('');
+      return;
+    }
+    if (contactForm.phone && !validatePhone(contactForm.phone)) {
+      setContactErrors([{ message: 'Phone number must be valid (+91 followed by 10 digits).' }]);
+      setSubmitting('');
+      return;
+    }
 
     try {
       await publicApi.createContact(contactForm);
@@ -177,23 +247,46 @@ export default function ContactPage() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Email *</label>
-                    <input type="email" value={bookingForm.guestEmail} onChange={(e) => setBookingForm({ ...bookingForm, guestEmail: e.target.value })} required />
+                    <input type="email" placeholder="example@email.com" value={bookingForm.guestEmail} onChange={(e) => setBookingForm({ ...bookingForm, guestEmail: e.target.value })} required />
                   </div>
                   <div className="form-group">
                     <label>Phone *</label>
-                    <input type="tel" value={bookingForm.guestPhone} onChange={(e) => setBookingForm({ ...bookingForm, guestPhone: e.target.value })} required />
+                    <input type="tel" placeholder="+918979472292" value={bookingForm.guestPhone} onChange={(e) => setBookingForm({ ...bookingForm, guestPhone: e.target.value })} required />
                   </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label>Check-in Date *</label>
-                    <input type="date" value={bookingForm.checkIn} onChange={(e) => setBookingForm({ ...bookingForm, checkIn: e.target.value })} required />
+                    <DatePicker 
+                      selected={bookingForm.checkIn} 
+                      onChange={(date) => setBookingForm({ ...bookingForm, checkIn: date })} 
+                      selectsStart
+                      startDate={bookingForm.checkIn}
+                      endDate={bookingForm.checkOut}
+                      minDate={new Date()}
+                      placeholderText="Select Check-in Date"
+                      className="date-picker-input"
+                      required 
+                    />
                   </div>
                   <div className="form-group">
                     <label>Check-out Date *</label>
-                    <input type="date" value={bookingForm.checkOut} onChange={(e) => setBookingForm({ ...bookingForm, checkOut: e.target.value })} required />
+                    <DatePicker 
+                      selected={bookingForm.checkOut} 
+                      onChange={(date) => setBookingForm({ ...bookingForm, checkOut: date })} 
+                      selectsEnd
+                      startDate={bookingForm.checkIn}
+                      endDate={bookingForm.checkOut}
+                      minDate={bookingForm.checkIn || new Date()}
+                      placeholderText="Select Check-out Date"
+                      className="date-picker-input"
+                      required 
+                    />
                   </div>
                 </div>
+                {checkingAvailability && <p style={{ color: '#0284c7', marginTop: '-10px', marginBottom: '15px', fontSize: '0.9rem' }}>Checking availability...</p>}
+                {availability === true && <p style={{ color: '#16a34a', marginTop: '-10px', marginBottom: '15px', fontSize: '0.9rem', fontWeight: 'bold' }}>✓ Dates are available for booking!</p>}
+                {availability === false && <p style={{ color: '#dc2626', marginTop: '-10px', marginBottom: '15px', fontSize: '0.9rem', fontWeight: 'bold' }}>✗ No rooms available for selected dates.</p>}
                 <div className="form-row">
                   <div className="form-group">
                     <label>Room</label>
@@ -236,9 +329,9 @@ export default function ContactPage() {
             <form className="contact__form" onSubmit={handleContactSubmit}>
               <div className="form-row">
                 <div className="form-group"><label>Name *</label><input type="text" value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} required /></div>
-                <div className="form-group"><label>Email *</label><input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} required /></div>
+                <div className="form-group"><label>Email *</label><input type="email" placeholder="example@email.com" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} required /></div>
               </div>
-              <div className="form-group"><label>Phone</label><input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} /></div>
+              <div className="form-group"><label>Phone</label><input type="tel" placeholder="+918979472292" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} /></div>
               <div className="form-group"><label>Message *</label><textarea rows={5} value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} required /></div>
               <button type="submit" className="btn btn-primary" disabled={submitting === 'contact'}>{submitting === 'contact' ? 'Sending...' : 'Send Message'}</button>
             </form>

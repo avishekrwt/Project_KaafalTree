@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CalendarDays, Bed, MessageSquare, Star, TrendingUp } from 'lucide-react';
 import adminApi from '../../services/adminApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -30,24 +31,28 @@ export default function AdminDashboard() {
       </div>
 
       <div className="admin-grid admin-grid--cards">
-        <StatCard label="Bookings" value={counts.bookings} />
-        <StatCard label="Rooms" value={counts.rooms} />
-        <StatCard label="Messages" value={counts.messages} />
-        <StatCard label="Pending Testimonials" value={counts.pendingTestimonials} />
+        <StatCard label="Total Bookings" value={counts.bookings} icon={<CalendarDays size={24} />} />
+        <StatCard label="Total Rooms" value={counts.rooms} icon={<Bed size={24} />} />
+        <StatCard label="New Messages" value={counts.messages} icon={<MessageSquare size={24} />} />
+        <StatCard label="Pending Testimonials" value={counts.pendingTestimonials} icon={<Star size={24} />} />
       </div>
 
       <div className="admin-card">
-        <h3>Recent Bookings</h3>
+        <div className="admin-card__header">
+          <h3>Recent Bookings</h3>
+          <div className="admin-card__icon"><TrendingUp size={20} /></div>
+        </div>
         <div className="admin-grid">
           {recentBookings.map((booking) => (
-            <div key={booking.id} className="admin-inline" style={{ justifyContent: 'space-between' }}>
-              <div>
+            <div key={booking.id} className="admin-recent-booking-item">
+              <div className="admin-recent-booking-info">
                 <strong>{booking.guestName}</strong>
                 <p className="admin-muted">{booking.room?.name || 'Room not selected'} | {booking.checkIn} to {booking.checkOut}</p>
               </div>
               <StatusBadge status={booking.status} />
             </div>
           ))}
+          {recentBookings.length === 0 && <p className="admin-muted">No recent bookings found.</p>}
         </div>
       </div>
     </section>

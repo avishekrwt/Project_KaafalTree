@@ -22,7 +22,8 @@ export default function AdminLayout() {
 
   // Close mobile menu when navigating
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    const timer = setTimeout(() => setIsMobileMenuOpen(false), 0);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   // Prevent scrolling when mobile menu is open

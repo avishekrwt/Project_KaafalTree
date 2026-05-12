@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Search, Filter } from 'lucide-react';
 import adminApi from '../../services/adminApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -9,6 +10,7 @@ import './admin.css';
 
 export default function ManageBookings() {
   const [status, setStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [state, setState] = useState({ loading: true, error: '', data: [], meta: null });
   const [deletingId, setDeletingId] = useState(null);
 
@@ -23,7 +25,9 @@ export default function ManageBookings() {
   };
 
   useEffect(() => {
-    load();
+    const timer = setTimeout(() => load(), 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const updateStatus = async (id, nextStatus) => {
@@ -47,17 +51,30 @@ export default function ManageBookings() {
           <h1>Bookings</h1>
           <p>Review guest inquiries, payment-backed bookings, and stay status updates.</p>
         </div>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="paid">Paid</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
+      </div>
+
+      <div className="admin-controls">
+        <div className="admin-search">
+          <Search size={18} className="admin-search-icon" />
+          <input 
+            type="text" 
+            placeholder="Search by guest name..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+          />
+        </div>
+        <div className="admin-filters">
+          <Filter size={18} className="admin-muted" />
+          <button className={`admin-filter-btn ${status === '' ? 'active' : ''}`} onClick={() => setStatus('')}>All</button>
+          <button className={`admin-filter-btn ${status === 'pending' ? 'active' : ''}`} onClick={() => setStatus('pending')}>Pending</button>
+          <button className={`admin-filter-btn ${status === 'confirmed' ? 'active' : ''}`} onClick={() => setStatus('confirmed')}>Confirmed</button>
+          <button className={`admin-filter-btn ${status === 'paid' ? 'active' : ''}`} onClick={() => setStatus('paid')}>Paid</button>
+          <button className={`admin-filter-btn ${status === 'cancelled' ? 'active' : ''}`} onClick={() => setStatus('cancelled')}>Cancelled</button>
+        </div>
       </div>
 
       <AdminTable
-        rows={state.data}
+        rows={state.data.filter(b => b.guestName.toLowerCase().includes(searchTerm.toLowerCase()))}
         columns={[
           { key: 'guestName', label: 'Guest' },
           { key: 'room', label: 'Room', render: (row) => row.room?.name || 'Not selected' },

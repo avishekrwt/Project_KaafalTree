@@ -51,6 +51,7 @@ export const publicApi = {
   getMenu: () => request('/menu'),
   getGallery: (category) => request(`/gallery${category ? `?category=${encodeURIComponent(category)}` : ''}`),
   getTestimonials: () => request('/testimonials'),
+  checkAvailability: (checkIn, checkOut) => request(`/availability?checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}`),
   createBooking: (payload) => request('/bookings', { method: 'POST', body: JSON.stringify(payload) }),
   createContact: (payload) => request('/contact', { method: 'POST', body: JSON.stringify(payload) }),
   createPaymentOrder: (payload) => request('/payment/create-order', { method: 'POST', body: JSON.stringify(payload) }),
