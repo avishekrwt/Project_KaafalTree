@@ -359,12 +359,14 @@ const createTestimonial = [
     body('guestName').trim().isLength({ min: 2, max: 100 }),
     body('reviewText').trim().isLength({ min: 10, max: 5000 }),
     body('rating').isInt({ min: 1, max: 5 }),
+    body('link').optional({ nullable: true }).trim().isURL().withMessage('Must be a valid URL'),
   ]),
   asyncHandler(async (req, res) => {
     const testimonial = await Testimonial.create({
       guest_name: req.body.guestName,
       review_text: req.body.reviewText,
       rating: req.body.rating,
+      link: req.body.link || null,
       is_approved: req.body.isApproved === true || req.body.isApproved === 'true',
     });
     res.status(201).json({ data: testimonialSerializer(testimonial) });
@@ -381,6 +383,7 @@ const updateTestimonial = [
     testimonial.guest_name = req.body.guestName ?? testimonial.guest_name;
     testimonial.review_text = req.body.reviewText ?? testimonial.review_text;
     testimonial.rating = req.body.rating ?? testimonial.rating;
+    if (req.body.link !== undefined) testimonial.link = req.body.link || null;
     if (req.body.isApproved !== undefined) {
       testimonial.is_approved = req.body.isApproved === true || req.body.isApproved === 'true';
     }

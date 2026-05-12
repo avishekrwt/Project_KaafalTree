@@ -9,7 +9,7 @@ export default function ManageTestimonials() {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ guestName: '', reviewText: '', rating: 5, isApproved: false });
+  const [form, setForm] = useState({ guestName: '', reviewText: '', rating: 5, link: '', isApproved: false });
 
   const load = async () => {
     setLoading(true);
@@ -31,7 +31,7 @@ export default function ManageTestimonials() {
   const create = async (event) => {
     event.preventDefault();
     await adminApi.createTestimonial(form);
-    setForm({ guestName: '', reviewText: '', rating: 5, isApproved: false });
+    setForm({ guestName: '', reviewText: '', rating: 5, link: '', isApproved: false });
     load();
   };
 
@@ -50,6 +50,7 @@ export default function ManageTestimonials() {
       <form className="admin-card" onSubmit={create}>
         <label className="admin-field"><span>Guest name</span><input value={form.guestName} onChange={(e) => setForm({ ...form, guestName: e.target.value })} required /></label>
         <label className="admin-field"><span>Review text</span><textarea value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} required /></label>
+        <label className="admin-field"><span>Source Link (optional)</span><input type="url" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="e.g. Google Maps URL" /></label>
         <div className="admin-inline">
           <label className="admin-field" style={{ flex: 1 }}><span>Rating</span><input type="number" min="1" max="5" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} /></label>
           <label className="admin-inline"><input type="checkbox" checked={form.isApproved} onChange={(e) => setForm({ ...form, isApproved: e.target.checked })} /><span>Approved</span></label>
@@ -64,6 +65,11 @@ export default function ManageTestimonials() {
               <div>
                 <h3>{testimonial.guestName}</h3>
                 <p className="admin-muted">{'★'.repeat(testimonial.rating)}</p>
+                {testimonial.link && (
+                  <a href={testimonial.link} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: 'var(--admin-primary)' }}>
+                    View Source Link
+                  </a>
+                )}
               </div>
               <StatusBadge status={testimonial.isApproved ? 'paid' : 'pending'} />
             </div>

@@ -24,6 +24,10 @@ const Testimonial = sequelize.define('Testimonial', {
       max: 5,
     },
   },
+  link: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
   is_approved: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

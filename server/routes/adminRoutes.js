@@ -17,6 +17,7 @@ router.use(auth, adminAuth);
 router.get('/stats', adminController.getStats);
 
 router.get('/bookings', ...bookingController.listBookingsAdmin);
+router.post('/bookings', ...bookingController.createBookingAdmin);
 router.patch('/bookings/:id', ...bookingController.updateBookingStatus);
 router.delete('/bookings/:id', ...bookingController.deleteBooking);
 

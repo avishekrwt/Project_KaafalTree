@@ -172,8 +172,46 @@ const deleteBooking = [
   }),
 ];
 
+const createBookingAdmin = [
+  validate([
+    body('guestName').trim().isLength({ min: 2, max: 100 }),
+    body('guestEmail').trim().isEmail(),
+    body('guestPhone').trim().isLength({ min: 7, max: 20 }),
+    body('checkIn').isISO8601(),
+    body('checkOut').isISO8601(),
+    body('numGuests').isInt({ min: 1, max: 20 }),
+    body('roomId').optional({ nullable: true }).isInt({ min: 1 }),
+    body('specialRequests').optional({ nullable: true }).isLength({ max: 2000 }),
+    body('status').isIn(['pending', 'confirmed', 'paid', 'cancelled']),
+    body('totalPrice').optional({ nullable: true }).isFloat({ min: 0 }),
+  ]),
+  asyncHandler(async (req, res) => {
+    const payload = {
+      guest_name: req.body.guestName,
+      guest_email: req.body.guestEmail,
+      guest_phone: req.body.guestPhone,
+      checkin_date: req.body.checkIn,
+      checkout_date: req.body.checkOut,
+      num_guests: req.body.numGuests,
+      room_id: req.body.roomId || null,
+      special_requests: req.body.specialRequests || null,
+      status: req.body.status,
+      total_price: req.body.totalPrice || null,
+    };
+
+    const booking = await Booking.create(payload);
+    
+    const fullBooking = await Booking.findByPk(booking.id, {
+      include: [{ model: Room, as: 'room' }],
+    });
+
+    res.status(201).json({ data: bookingSerializer(fullBooking) });
+  }),
+];
+
 module.exports = {
   createBooking,
+  createBookingAdmin,
   deleteBooking,
   listBookingsAdmin,
   updateBookingStatus,

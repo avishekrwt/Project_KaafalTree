@@ -1,18 +1,48 @@
 import { useEffect, useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import adminApi from '../../services/adminApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorMessage from '../../components/ErrorMessage';
 import AdminTable from '../../components/admin/AdminTable';
 import StatusBadge from '../../components/admin/StatusBadge';
 import ConfirmModal from '../../components/admin/ConfirmModal';
+import FormModal from '../../components/admin/FormModal';
 import './admin.css';
+
+const emptyForm = {
+  guestName: '',
+  guestEmail: '',
+  guestPhone: '',
+  checkIn: '',
+  checkOut: '',
+  numGuests: 1,
+  roomId: '',
+  status: 'confirmed',
+  specialRequests: '',
+  totalPrice: '',
+};
 
 export default function ManageBookings() {
   const [status, setStatus] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [state, setState] = useState({ loading: true, error: '', data: [], meta: null });
   const [deletingId, setDeletingId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [rooms, setRooms] = useState([]);
+
+  const loadRooms = async () => {
+    try {
+      const res = await adminApi.getRooms();
+      setRooms(res.data);
+    } catch (err) {
+      console.error('Failed to load rooms:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadRooms();
+  }, []);
 
   const load = async () => {
     setState((current) => ({ ...current, loading: true, error: '' }));
@@ -41,6 +71,23 @@ export default function ManageBookings() {
     load();
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await adminApi.createBooking({
+        ...form,
+        roomId: form.roomId ? parseInt(form.roomId) : null,
+        totalPrice: form.totalPrice ? parseFloat(form.totalPrice) : null,
+        numGuests: parseInt(form.numGuests),
+      });
+      setModalOpen(false);
+      setForm(emptyForm);
+      load();
+    } catch (err) {
+      alert(err.message || 'Failed to create booking');
+    }
+  };
+
   if (state.loading) return <LoadingSpinner label="Loading bookings..." />;
   if (state.error) return <ErrorMessage message={state.error} actionLabel="Retry" onAction={load} />;
 
@@ -51,16 +98,20 @@ export default function ManageBookings() {
           <h1>Bookings</h1>
           <p>Review guest inquiries, payment-backed bookings, and stay status updates.</p>
         </div>
+        <button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>
+          <Plus size={18} />
+          Create Booking
+        </button>
       </div>
 
       <div className="admin-controls">
         <div className="admin-search">
           <Search size={18} className="admin-search-icon" />
-          <input 
-            type="text" 
-            placeholder="Search by guest name..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
+          <input
+            type="text"
+            placeholder="Search by guest name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="admin-filters">
@@ -102,6 +153,70 @@ export default function ManageBookings() {
         onCancel={() => setDeletingId(null)}
         onConfirm={confirmDelete}
       />
+
+      <FormModal
+        open={modalOpen}
+        title="Create Booking"
+        onClose={() => setModalOpen(false)}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="admin-grid admin-grid--two">
+            <label className="admin-field">
+              <span>Guest Name *</span>
+              <input type="text" required value={form.guestName} onChange={e => setForm({ ...form, guestName: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Guest Email *</span>
+              <input type="email" required value={form.guestEmail} onChange={e => setForm({ ...form, guestEmail: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Guest Phone *</span>
+              <input type="tel" required value={form.guestPhone} onChange={e => setForm({ ...form, guestPhone: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Number of Guests *</span>
+              <input type="number" min="1" required value={form.numGuests} onChange={e => setForm({ ...form, numGuests: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Check-In Date *</span>
+              <input type="date" required value={form.checkIn} onChange={e => setForm({ ...form, checkIn: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Check-Out Date *</span>
+              <input type="date" required value={form.checkOut} onChange={e => setForm({ ...form, checkOut: e.target.value })} />
+            </label>
+            <label className="admin-field">
+              <span>Room</span>
+              <select value={form.roomId} onChange={e => setForm({ ...form, roomId: e.target.value })}>
+                <option value="">No Room Selected</option>
+                {rooms.map(room => (
+                  <option key={room.id} value={room.id}>{room.name} (₹{room.pricePerNight}/night)</option>
+                ))}
+              </select>
+            </label>
+            <label className="admin-field">
+              <span>Status *</span>
+              <select required value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="paid">Paid</option>
+              </select>
+            </label>
+            <label className="admin-field">
+              <span>Total Price (₹)</span>
+              <input type="number" min="0" step="0.01" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} placeholder="Auto-calculated if left blank" />
+            </label>
+          </div>
+          <label className="admin-field" style={{ marginTop: '16px' }}>
+            <span>Special Requests</span>
+            <textarea value={form.specialRequests} onChange={e => setForm({ ...form, specialRequests: e.target.value })} rows="3"></textarea>
+          </label>
+          <div className="admin-modal__actions">
+            <button type="button" className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Create Booking</button>
+          </div>
+        </form>
+      </FormModal>
     </section>
   );
 }

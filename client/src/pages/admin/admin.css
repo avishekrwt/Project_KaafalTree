@@ -352,14 +352,17 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 24px;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .admin-modal {
   width: min(560px, 100%);
+  margin: auto;
   background: var(--admin-surface);
   color: var(--admin-text);
   border-radius: 16px;

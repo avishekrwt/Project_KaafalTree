@@ -91,6 +91,7 @@ const testimonialSerializer = (testimonial) => ({
   guestName: testimonial.guest_name,
   reviewText: testimonial.review_text,
   rating: testimonial.rating,
+  link: testimonial.link,
   isApproved: testimonial.is_approved,
   createdAt: testimonial.created_at,
 });
