@@ -4,20 +4,25 @@ const sequelize = require('./config/db');
 async function fix() {
   try {
     await sequelize.authenticate();
-    await sequelize.query('CREATE TABLE IF NOT EXISTS SequelizeMeta (name VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (name)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;');
-    await sequelize.query("INSERT IGNORE INTO SequelizeMeta (name) VALUES ('20260512112437-initial-schema.js');");
-    await sequelize.query("INSERT IGNORE INTO SequelizeMeta (name) VALUES ('20260512120908-add-link-to-testimonials.js');");
-    try {
-      await sequelize.query('ALTER TABLE testimonials ADD COLUMN link VARCHAR(255);');
-      console.log('Added link column');
-    } catch(e) {
-      console.log('Column already exists or error:', e.message);
+    console.log('Connected.');
+
+    // Add the link column to testimonials if it doesn't exist
+    const [cols] = await sequelize.query(
+      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND COLUMN_NAME = 'link';"
+    );
+
+    if (cols.length === 0) {
+      await sequelize.query('ALTER TABLE testimonials ADD COLUMN link VARCHAR(255) NULL;');
+      console.log('✅ Added link column to testimonials table.');
+    } else {
+      console.log('ℹ️  link column already exists, skipping.');
     }
-    console.log('Done!');
+
     process.exit(0);
   } catch (err) {
-    console.error(err);
+    console.error('Failed:', err.message);
     process.exit(1);
   }
 }
+
 fix();

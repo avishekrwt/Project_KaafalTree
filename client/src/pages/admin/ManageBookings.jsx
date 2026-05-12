@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Search, Filter, Plus } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import adminApi from '../../services/adminApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -13,14 +15,23 @@ const emptyForm = {
   guestName: '',
   guestEmail: '',
   guestPhone: '',
-  checkIn: '',
-  checkOut: '',
+  checkIn: null,
+  checkOut: null,
   numGuests: 1,
   roomId: '',
   status: 'confirmed',
   specialRequests: '',
-  totalPrice: '',
 };
+
+const formatDate = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+};
+
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
 
 export default function ManageBookings() {
   const [status, setStatus] = useState('');
@@ -29,6 +40,7 @@ export default function ManageBookings() {
   const [deletingId, setDeletingId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [formErrors, setFormErrors] = useState([]);
   const [rooms, setRooms] = useState([]);
 
   const loadRooms = async () => {
@@ -40,9 +52,7 @@ export default function ManageBookings() {
     }
   };
 
-  useEffect(() => {
-    loadRooms();
-  }, []);
+  useEffect(() => { loadRooms(); }, []);
 
   const load = async () => {
     setState((current) => ({ ...current, loading: true, error: '' }));
@@ -71,20 +81,48 @@ export default function ManageBookings() {
     load();
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setForm(emptyForm);
+    setFormErrors([]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors([]);
+
+    // Validate
+    const errors = [];
+    if (!validateEmail(form.guestEmail)) {
+      errors.push('Please enter a valid email address.');
+    }
+    if (!validatePhone(form.guestPhone)) {
+      errors.push('Phone number must be exactly 10 digits (numbers only, no country code).');
+    }
+    if (!form.checkIn || !form.checkOut) {
+      errors.push('Please select both check-in and check-out dates.');
+    }
+    if (errors.length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
     try {
       await adminApi.createBooking({
-        ...form,
-        roomId: form.roomId ? parseInt(form.roomId) : null,
-        totalPrice: form.totalPrice ? parseFloat(form.totalPrice) : null,
+        guestName: form.guestName,
+        guestEmail: form.guestEmail,
+        guestPhone: form.guestPhone,
+        checkIn: formatDate(form.checkIn),
+        checkOut: formatDate(form.checkOut),
         numGuests: parseInt(form.numGuests),
+        roomId: form.roomId ? parseInt(form.roomId) : null,
+        status: form.status,
+        specialRequests: form.specialRequests || null,
       });
-      setModalOpen(false);
-      setForm(emptyForm);
+      closeModal();
       load();
     } catch (err) {
-      alert(err.message || 'Failed to create booking');
+      setFormErrors([err.message || 'Failed to create booking. Please try again.']);
     }
   };
 
@@ -154,46 +192,93 @@ export default function ManageBookings() {
         onConfirm={confirmDelete}
       />
 
-      <FormModal
-        open={modalOpen}
-        title="Create Booking"
-        onClose={() => setModalOpen(false)}
-      >
+      <FormModal open={modalOpen} title="Create Booking" onClose={closeModal}>
         <form onSubmit={handleSubmit}>
+          {formErrors.length > 0 && (
+            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px' }}>
+              {formErrors.map((err, i) => (
+                <p key={i} style={{ color: '#f87171', margin: '0 0 4px', fontSize: '14px' }}>{err}</p>
+              ))}
+            </div>
+          )}
+
           <div className="admin-grid admin-grid--two">
             <label className="admin-field">
               <span>Guest Name *</span>
               <input type="text" required value={form.guestName} onChange={e => setForm({ ...form, guestName: e.target.value })} />
             </label>
+
             <label className="admin-field">
               <span>Guest Email *</span>
-              <input type="email" required value={form.guestEmail} onChange={e => setForm({ ...form, guestEmail: e.target.value })} />
+              <input
+                type="email"
+                required
+                placeholder="guest@example.com"
+                value={form.guestEmail}
+                onChange={e => setForm({ ...form, guestEmail: e.target.value })}
+              />
             </label>
+
             <label className="admin-field">
-              <span>Guest Phone *</span>
-              <input type="tel" required value={form.guestPhone} onChange={e => setForm({ ...form, guestPhone: e.target.value })} />
+              <span>Phone * <span style={{ fontWeight: 400, color: 'var(--admin-text-muted)' }}>(10 digits only)</span></span>
+              <input
+                type="text"
+                required
+                maxLength={10}
+                placeholder="9876543210"
+                value={form.guestPhone}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setForm({ ...form, guestPhone: val });
+                }}
+              />
             </label>
+
             <label className="admin-field">
               <span>Number of Guests *</span>
-              <input type="number" min="1" required value={form.numGuests} onChange={e => setForm({ ...form, numGuests: e.target.value })} />
+              <input type="number" min="1" max="20" required value={form.numGuests} onChange={e => setForm({ ...form, numGuests: e.target.value })} />
             </label>
-            <label className="admin-field">
+
+            <div className="admin-field">
               <span>Check-In Date *</span>
-              <input type="date" required value={form.checkIn} onChange={e => setForm({ ...form, checkIn: e.target.value })} />
-            </label>
-            <label className="admin-field">
+              <DatePicker
+                selected={form.checkIn}
+                onChange={(date) => setForm({ ...form, checkIn: date })}
+                selectsStart
+                startDate={form.checkIn}
+                endDate={form.checkOut}
+                minDate={new Date()}
+                placeholderText="Select check-in date"
+                className="admin-field-input"
+                required
+              />
+            </div>
+
+            <div className="admin-field">
               <span>Check-Out Date *</span>
-              <input type="date" required value={form.checkOut} onChange={e => setForm({ ...form, checkOut: e.target.value })} />
-            </label>
+              <DatePicker
+                selected={form.checkOut}
+                onChange={(date) => setForm({ ...form, checkOut: date })}
+                selectsEnd
+                startDate={form.checkIn}
+                endDate={form.checkOut}
+                minDate={form.checkIn || new Date()}
+                placeholderText="Select check-out date"
+                className="admin-field-input"
+                required
+              />
+            </div>
+
             <label className="admin-field">
               <span>Room</span>
               <select value={form.roomId} onChange={e => setForm({ ...form, roomId: e.target.value })}>
                 <option value="">No Room Selected</option>
                 {rooms.map(room => (
-                  <option key={room.id} value={room.id}>{room.name} (₹{room.pricePerNight}/night)</option>
+                  <option key={room.id} value={room.id}>{room.name}</option>
                 ))}
               </select>
             </label>
+
             <label className="admin-field">
               <span>Status *</span>
               <select required value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
@@ -202,17 +287,15 @@ export default function ManageBookings() {
                 <option value="paid">Paid</option>
               </select>
             </label>
-            <label className="admin-field">
-              <span>Total Price (₹)</span>
-              <input type="number" min="0" step="0.01" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} placeholder="Auto-calculated if left blank" />
-            </label>
           </div>
+
           <label className="admin-field" style={{ marginTop: '16px' }}>
             <span>Special Requests</span>
             <textarea value={form.specialRequests} onChange={e => setForm({ ...form, specialRequests: e.target.value })} rows="3"></textarea>
           </label>
+
           <div className="admin-modal__actions">
-            <button type="button" className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            <button type="button" className="btn btn-outline" onClick={closeModal}>Cancel</button>
             <button type="submit" className="btn btn-primary">Create Booking</button>
           </div>
         </form>

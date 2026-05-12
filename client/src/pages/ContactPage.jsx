@@ -80,7 +80,7 @@ export default function ContactPage() {
   }, [bookingForm.checkIn, bookingForm.checkOut]);
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^\+91[0-9]{10}$/;
+    const phoneRegex = /^[0-9]{10}$/;
     return phoneRegex.test(phone);
   };
 
@@ -141,7 +141,7 @@ export default function ContactPage() {
       return;
     }
     if (!validatePhone(bookingForm.guestPhone)) {
-      setBookingErrors([{ message: 'Phone number must be valid (+91 followed by 10 digits).' }]);
+      setBookingErrors([{ message: 'Phone number must be exactly 10 digits (numbers only).' }]);
       setSubmitting('');
       return;
     }
@@ -190,7 +190,7 @@ export default function ContactPage() {
       return;
     }
     if (contactForm.phone && !validatePhone(contactForm.phone)) {
-      setContactErrors([{ message: 'Phone number must be valid (+91 followed by 10 digits).' }]);
+      setContactErrors([{ message: 'Phone number must be exactly 10 digits (numbers only).' }]);
       setSubmitting('');
       return;
     }
@@ -250,8 +250,18 @@ export default function ContactPage() {
                     <input type="email" placeholder="example@email.com" value={bookingForm.guestEmail} onChange={(e) => setBookingForm({ ...bookingForm, guestEmail: e.target.value })} required />
                   </div>
                   <div className="form-group">
-                    <label>Phone *</label>
-                    <input type="tel" placeholder="+918979472292" value={bookingForm.guestPhone} onChange={(e) => setBookingForm({ ...bookingForm, guestPhone: e.target.value })} required />
+                    <label>Phone * <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>(10 digits)</span></label>
+                    <input
+                      type="text"
+                      maxLength={10}
+                      placeholder="9876543210"
+                      value={bookingForm.guestPhone}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setBookingForm({ ...bookingForm, guestPhone: val });
+                      }}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="form-row">
@@ -331,7 +341,19 @@ export default function ContactPage() {
                 <div className="form-group"><label>Name *</label><input type="text" value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} required /></div>
                 <div className="form-group"><label>Email *</label><input type="email" placeholder="example@email.com" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} required /></div>
               </div>
-              <div className="form-group"><label>Phone</label><input type="tel" placeholder="+918979472292" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} /></div>
+              <div className="form-group">
+                <label>Phone <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>(10 digits)</span></label>
+                <input
+                  type="text"
+                  maxLength={10}
+                  placeholder="9876543210"
+                  value={contactForm.phone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setContactForm({ ...contactForm, phone: val });
+                  }}
+                />
+              </div>
               <div className="form-group"><label>Message *</label><textarea rows={5} value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} required /></div>
               <button type="submit" className="btn btn-primary" disabled={submitting === 'contact'}>{submitting === 'contact' ? 'Sending...' : 'Send Message'}</button>
             </form>
