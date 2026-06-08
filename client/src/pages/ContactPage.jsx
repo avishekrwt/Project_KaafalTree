@@ -226,8 +226,8 @@ export default function ContactPage() {
               </p>
 
               <div className="contact__details">
-                <div className="contact__detail"><div className="contact__detail-icon"><MapPin size={20} /></div><div><h4>Location</h4><p>Phata, Rudraprayag District<br />Uttarakhand, India 246471<br />On the Kedarnath Yatra Route</p></div></div>
-                <div className="contact__detail"><div className="contact__detail-icon"><Phone size={20} /></div><div><h4>Phone</h4><p>+91 8979472292</p><p className="contact__detail-sub">Available 7 AM - 10 PM</p></div></div>
+                <div className="contact__detail"><div className="contact__detail-icon"><MapPin size={20} /></div><div><h4>Location</h4><p>Kedarnath Rd, behind Govt Hospital<br />Phata, Rudraprayag District<br />Uttarakhand, India 246471</p></div></div>
+                <div className="contact__detail"><div className="contact__detail-icon"><Phone size={20} /></div><div><h4>Phone</h4><p>+91 94567 72378</p><p className="contact__detail-sub">Available 7 AM - 10 PM</p></div></div>
                 <div className="contact__detail"><div className="contact__detail-icon"><Mail size={20} /></div><div><h4>Email</h4><p>info@kaafaltree.com</p></div></div>
                 <div className="contact__detail"><div className="contact__detail-icon"><Clock size={20} /></div><div><h4>Timings</h4><p>Check-in: 12:00 PM<br />Check-out: 11:00 AM</p><p className="contact__detail-sub">Restaurant: 7 AM - 10 PM</p></div></div>
               </div>

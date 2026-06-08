@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mountain, Utensils, Car, Wifi, ShowerHead, TreePine,
-  Star, ArrowRight, MapPin, Phone, ChevronRight, ExternalLink
+  Star, ArrowRight, MapPin, Phone, ChevronRight, ExternalLink,
+  PawPrint, WashingMachine, CookingPot
 } from 'lucide-react';
 import { publicApi, getImageUrl } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -10,12 +11,15 @@ import ErrorMessage from '../components/ErrorMessage';
 import './HomePage.css';
 
 const features = [
-  { icon: <Mountain size={28} />, title: 'Mountain Views', desc: 'Wake up to snow-capped Himalayan peaks' },
-  { icon: <Utensils size={28} />, title: 'Homemade Food', desc: 'Fresh Garhwali cuisine & local flavors' },
-  { icon: <TreePine size={28} />, title: 'Forest Setting', desc: 'Surrounded by dense Himalayan forest' },
-  { icon: <Car size={28} />, title: 'Free Parking', desc: 'Spacious parking for cars & buses' },
-  { icon: <ShowerHead size={28} />, title: 'Hot Water', desc: '24/7 geyser-heated water in every room' },
-  { icon: <Wifi size={28} />, title: 'Kedarnath Base', desc: 'Perfect halt before the holy yatra' },
+  { icon: <Mountain size={28} />, title: 'Mountain Views', desc: 'Wake up to breathtaking Himalayan vistas' },
+  { icon: <Utensils size={28} />, title: 'Homemade Food', desc: 'Fresh North & South Indian vegetarian cuisine' },
+  { icon: <TreePine size={28} />, title: 'Forest Setting', desc: 'Peaceful stay amidst dense Himalayan forest' },
+  { icon: <Car size={28} />, title: 'Free Parking', desc: 'Spacious private parking on-site' },
+  { icon: <ShowerHead size={28} />, title: 'Hot Water', desc: '24/7 hot water in every room' },
+  { icon: <Wifi size={28} />, title: 'Free Wi-Fi', desc: 'Complimentary internet access' },
+  { icon: <CookingPot size={28} />, title: 'Private Kitchen', desc: 'Kitchen facilities available for guests' },
+  { icon: <WashingMachine size={28} />, title: 'Laundry Service', desc: 'Laundry facilities on-site' },
+  { icon: <PawPrint size={28} />, title: 'Pet Friendly', desc: 'Bring your furry friends along!' },
 ];
 
 export default function HomePage() {
@@ -262,7 +266,7 @@ export default function HomePage() {
             <Link to="/contact" className="btn btn-primary">
               Book Your Stay <ArrowRight size={18} />
             </Link>
-            <a href="tel:+91XXXXXXXXXX" className="btn btn-outline">
+            <a href="tel:+919456772378" className="btn btn-outline">
               <Phone size={18} /> Call Us Now
             </a>
           </div>

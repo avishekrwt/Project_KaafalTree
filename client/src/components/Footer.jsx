@@ -33,11 +33,11 @@ export default function Footer() {
             <ul className="footer__contact">
               <li>
                 <MapPin size={16} />
-                <span>Phata, Rudraprayag District,<br />Uttarakhand, India<br />On the Kedarnath Route</span>
+                <span>Kedarnath Rd, behind Govt Hospital<br />Phata, Rudraprayag District<br />Uttarakhand, India 246471</span>
               </li>
               <li>
                 <Phone size={16} />
-                <span>+91 8979472292</span>
+                <span>+91 94567 72378</span>
               </li>
               <li>
                 <Mail size={16} />

@@ -9,10 +9,6 @@ import './admin.css';
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 
-function isToday(dateStr) {
-  return dateStr === todayStr();
-}
-
 export default function BookingRecords() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -103,7 +103,7 @@ export default function RoomsPage() {
             <p>Contact us directly for the best rates and availability</p>
             <div className="rooms-cta__actions">
               <Link to="/contact" className="btn btn-primary"><Phone size={16} /> Contact Us to Book</Link>
-              <a href="tel:+91XXXXXXXXXX" className="btn btn-outline">Call Directly</a>
+              <a href="tel:+919456772378" className="btn btn-outline">Call Directly</a>
             </div>
           </div>
         </div>
