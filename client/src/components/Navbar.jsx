@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -47,17 +47,13 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li className="navbar__links-cta">
-            <Link to="/contact" className="btn btn-primary">
-              <Phone size={16} />
-              Book Now
-            </Link>
-          </li>
         </ul>
 
         <div className="navbar__right">
           <Link to="/contact" className="btn btn-primary navbar__cta-desktop">
-            <Phone size={16} />
+            Book Now
+          </Link>
+          <Link to="/contact" className="btn btn-primary navbar__cta-mobile">
             Book Now
           </Link>
           <button

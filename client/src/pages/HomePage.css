@@ -549,16 +549,46 @@
     display: none;
   }
 
+  /* ========== FEATURES SECTION TASK #2 ========== */
+  .features__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 28px 20px;
+  }
+
+  .feature-card__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .feature-card h3 {
+    font-size: 18px;
+  }
+
+  /* ========== HOME ABOUT / OUR STORY TASK #3 ========== */
   .home-about__grid {
     grid-template-columns: 1fr;
     gap: 40px;
   }
 
+  .home-about__images {
+    position: relative;
+  }
+
   .home-about__img-small {
-    position: static;
-    width: 100%;
-    height: 200px;
-    margin-top: 16px;
+    position: absolute;
+    bottom: -20px;
+    right: 16px;
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 4px solid var(--forest-dark);
+    box-shadow: var(--shadow);
+    margin-top: 0;
   }
 
   .home-about__text h2 {
@@ -593,8 +623,19 @@
     height: 220px;
   }
 
+  /* ========== TESTIMONIALS SECTION TASK #4 ========== */
   .testimonials__grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .testimonial-card {
+    padding: 28px 20px;
+  }
+
+  .testimonial-card p {
+    font-size: 14px;
+    line-height: 1.6;
   }
 
   .home-cta__content h2 {
@@ -607,12 +648,16 @@
     font-size: 32px;
   }
 
-  .features__grid {
-    grid-template-columns: 1fr;
-  }
-
   .hero__badges {
     flex-direction: column;
     gap: 8px;
+  }
+
+  /* Further adjustments for very small screens */
+  .home-about__img-small {
+    width: 110px;
+    height: 110px;
+    bottom: -15px;
+    right: 12px;
   }
 }
