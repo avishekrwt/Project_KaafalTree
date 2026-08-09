@@ -34,8 +34,8 @@ const signToken = (admin) =>
 
 const authCookieOptions = () => ({
   httpOnly: true,
-  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-  secure: process.env.NODE_ENV === 'production',
+  secure: true,
+  sameSite: 'none',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
