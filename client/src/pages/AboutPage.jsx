@@ -48,7 +48,7 @@ export default function AboutPage() {
                 className="about-story__img-1"
               />
               <img
-                src="/images/outdoor-pergola-2.jpg"
+                src="/images/aerial-view.jpg"
                 alt="Guests at Kaafal Tree"
                 className="about-story__img-2"
               />
